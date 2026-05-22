@@ -59,7 +59,14 @@ def delete_task(task_id):
 @token_required
 def update_task_status(task_id):
     data = request.get_json()
-    result = TaskService.update_task_status(task_id, data.get('status'), g.current_user_id)
+    status = data.get('status')
+    user_id = g.current_user_id
+    role_name = g.current_role_name
+
+    if role_name == 'Employee' and status == 'Completed':
+        return jsonify({'message': 'Tasks must be approved by a manager to be completed', 'success': False}), 403
+
+    result = TaskService.update_task_status(task_id, status, user_id)
     if result['success']:
         return jsonify(result), 200
     return jsonify(result), 400

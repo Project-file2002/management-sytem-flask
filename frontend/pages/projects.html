@@ -23,6 +23,7 @@
                 <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i> Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="users.html" id="navUsers"><i class="fas fa-fw fa-users"></i> Users</a></li>
                 <li class="nav-item"><a class="nav-link active" href="projects.html"><i class="fas fa-fw fa-project-diagram"></i> Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="kanban.html"><i class="fas fa-fw fa-columns"></i> Board</a></li>
                 <li class="nav-item"><a class="nav-link" href="tasks.html"><i class="fas fa-fw fa-tasks"></i> Tasks</a></li>
                 <li class="nav-item"><a class="nav-link" href="expenses.html"><i class="fas fa-fw fa-dollar-sign"></i> Expenses</a></li>
                 <li class="nav-item"><a class="nav-link" href="reports.html"><i class="fas fa-fw fa-chart-bar"></i> Reports</a></li>
@@ -240,12 +241,16 @@
                         <td>${formatDate(p.end_date)}</td>
                         <td>${statusBadge(p.status)}</td>
                         <td>
+                            ${user.role !== 'Employee' ? `
                             <button class="btn btn-sm btn-info me-1" onclick="editProject(${p.project_id})" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteProject(${p.project_id})" title="Delete" ${user.role !== 'Admin' ? 'disabled' : ''}>
+                            ` : ''}
+                            ${user.role === 'Admin' ? `
+                            <button class="btn btn-sm btn-danger" onclick="deleteProject(${p.project_id})" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
+                            ` : ''}
                         </td>
                     </tr>
                 `).join('');

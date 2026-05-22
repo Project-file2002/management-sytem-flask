@@ -189,7 +189,7 @@ class TaskService:
     def update_task_status(task_id, status, user_id):
         db = DatabaseConnection()
         try:
-            valid_statuses = ['Pending', 'In Progress', 'Completed', 'Blocked']
+            valid_statuses = ['Pending', 'In Progress', 'Awaiting Approval', 'Completed']
             if status not in valid_statuses:
                 return {'success': False, 'message': 'Invalid status'}
 
@@ -198,12 +198,25 @@ class TaskService:
                        (SELECT full_name FROM Users WHERE user_id = t.assigned_to) as assigned_name
                 FROM Tasks t
                 LEFT JOIN Projects p ON t.project_id = p.project_id
-                WHERE t.task_id = ? AND t.assigned_to = ?
+                WHERE t.task_id = ?
             """
-            task = db.execute_query(query, (task_id, user_id))
+            task = db.execute_query(query, (task_id,))
 
             if not task:
-                return {'success': False, 'message': 'Task not found or not assigned to you'}
+                return {'success': False, 'message': 'Task not found'}
+
+            task = task[0]
+
+            role_query = """
+                SELECT r.role_name FROM Users u
+                JOIN Roles r ON u.role_id = r.role_id
+                WHERE u.user_id = ?
+            """
+            role_result = db.execute_query(role_query, (user_id,))
+            role_name = role_result[0]['role_name'] if role_result else 'Employee'
+
+            if role_name == 'Employee' and task.get('assigned_to') != user_id:
+                return {'success': False, 'message': 'You can only update your own tasks'}
 
             db.execute_query(
                 "UPDATE Tasks SET status = ?, updated_at = GETDATE() WHERE task_id = ?",
@@ -211,11 +224,34 @@ class TaskService:
                 commit=True
             )
 
-            if task[0].get('manager_id') and task[0]['manager_id'] != user_id:
+            if status == 'Awaiting Approval' and task.get('manager_id'):
                 NotificationService.create_notification(
-                    task[0]['manager_id'],
+                    task['manager_id'],
+                    'Task Pending Approval',
+                    f'Task "{task["task_title"]}" in project "{task["project_name"]}" is awaiting your approval.',
+                    'task_pending_approval'
+                )
+            elif status == 'Completed' and task.get('assigned_to') and task['assigned_to'] != user_id:
+                NotificationService.create_notification(
+                    task['assigned_to'],
+                    'Task Approved',
+                    f'Your task "{task["task_title"]}" has been approved.',
+                    'task_approved'
+                )
+            elif status == 'In Progress' and task.get('assigned_to'):
+                prev_status = task.get('status', '')
+                if prev_status == 'Awaiting Approval':
+                    NotificationService.create_notification(
+                        task['assigned_to'],
+                        'Task Changes Requested',
+                        f'Your task "{task["task_title"]}" needs changes. Please review.',
+                        'task_changes_requested'
+                    )
+            elif task.get('manager_id') and task['manager_id'] != user_id:
+                NotificationService.create_notification(
+                    task['manager_id'],
                     'Task Status Updated',
-                    f'Task "{task[0]["task_title"]}" in project "{task[0]["project_name"]}" changed to {status}.',
+                    f'Task "{task["task_title"]}" in project "{task["project_name"]}" changed to {status}.',
                     'task_updated'
                 )
 

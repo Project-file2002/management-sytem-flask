@@ -23,6 +23,7 @@
                 <li class="nav-item"><a class="nav-link active" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i> Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="users.html" id="navUsers"><i class="fas fa-fw fa-users"></i> Users</a></li>
                 <li class="nav-item"><a class="nav-link" href="projects.html"><i class="fas fa-fw fa-project-diagram"></i> Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="kanban.html"><i class="fas fa-fw fa-columns"></i> Board</a></li>
                 <li class="nav-item"><a class="nav-link" href="tasks.html"><i class="fas fa-fw fa-tasks"></i> Tasks</a></li>
                 <li class="nav-item"><a class="nav-link" href="expenses.html"><i class="fas fa-fw fa-dollar-sign"></i> Expenses</a></li>
                 <li class="nav-item"><a class="nav-link" href="reports.html"><i class="fas fa-fw fa-chart-bar"></i> Reports</a></li>
@@ -144,6 +145,9 @@
                         <div class="card">
                             <div class="card-header">
                                 <span>Recent Tasks</span>
+                                <a href="kanban.html" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-columns me-1"></i> Board View
+                                </a>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -222,10 +226,6 @@
             }
 
             const user = api.getUser();
-            if (user.role === 'Employee') {
-                const navUsers = document.getElementById('navUsers');
-                if (navUsers) navUsers.style.display = 'none';
-            }
 
             const statsLabels = {
                 Admin: ['Total Users', 'Total Projects', 'Pending Tasks', 'Pending Expenses'],
@@ -277,7 +277,7 @@
                 } else {
                     tbody.innerHTML = tasks.map(t => `
                         <tr>
-                            <td><a href="tasks.html" class="text-decoration-none">${t.task_title}</a></td>
+                            <td><a href="kanban.html" class="text-decoration-none">${t.task_title}</a></td>
                             <td>${t.project_name || '-'}</td>
                             <td>${priorityBadge(t.priority)}</td>
                             <td>${statusBadge(t.status)}</td>

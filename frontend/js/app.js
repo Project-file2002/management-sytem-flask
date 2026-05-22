@@ -42,7 +42,7 @@ function statusBadge(status, type = 'status') {
         'Completed': 'badge-status-completed',
         'On Hold': 'badge-status-onhold',
         'In Progress': 'badge-status-inprogress',
-        'Blocked': 'badge-status-blocked',
+        'Awaiting Approval': 'badge-status-awaiting',
     };
     const cls = map[status] || 'bg-secondary';
     return `<span class="badge ${cls}">${status}</span>`;
@@ -93,6 +93,16 @@ function initSidebar() {
         toggleBtn.addEventListener('click', () => {
             document.querySelector('.sidebar').classList.toggle('show');
         });
+    }
+
+    filterSidebarByRole();
+}
+
+function filterSidebarByRole() {
+    const user = api.getUser();
+    const navUsers = document.getElementById('navUsers');
+    if (navUsers && user.role !== 'Admin') {
+        navUsers.style.display = 'none';
     }
 }
 
@@ -159,15 +169,6 @@ async function markAllNotifRead() {
     } catch (error) {
         console.error('Failed to mark all as read:', error);
     }
-}
-
-function redirectBasedOnRole() {
-    const user = api.getUser();
-    const role = user.role || '';
-
-    if (role === 'Admin') window.location.href = 'pages/dashboard.html';
-    else if (role === 'Manager') window.location.href = 'pages/dashboard.html';
-    else if (role === 'Employee') window.location.href = 'pages/dashboard.html';
 }
 
 function openModal(modalId) {

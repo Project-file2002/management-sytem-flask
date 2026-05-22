@@ -4,7 +4,10 @@ from dotenv import load_dotenv
 from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 
-load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
+# Load .env if present (local dev). In Docker, real env vars are injected by compose.
+_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
+if os.path.exists(_env_path):
+    load_dotenv(_env_path)
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
