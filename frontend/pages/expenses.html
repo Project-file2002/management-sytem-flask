@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses - Task & Expense Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-tasks mb-2" style="color: #fff; font-size: 1.5rem;"></i>
+                <h3>TaskFlow</h3>
+                <small>Management System</small>
+            </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Main</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="users.html" id="navUsers"><i class="fas fa-fw fa-users"></i> Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="projects.html"><i class="fas fa-fw fa-project-diagram"></i> Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="tasks.html"><i class="fas fa-fw fa-tasks"></i> Tasks</a></li>
+                <li class="nav-item"><a class="nav-link active" href="expenses.html"><i class="fas fa-fw fa-dollar-sign"></i> Expenses</a></li>
+                <li class="nav-item"><a class="nav-link" href="reports.html"><i class="fas fa-fw fa-chart-bar"></i> Reports</a></li>
+            </ul>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Account</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="notifications.html"><i class="fas fa-fw fa-bell"></i> Notifications</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="logout()"><i class="fas fa-fw fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <nav class="topbar">
+                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <div class="topbar-search">
+                    <i class="fas fa-search text-muted me-2"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="topbar-right">
+                    <div class="dropdown">
+                        <button class="notification-btn" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationList"></div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="user-profile" data-bs-toggle="dropdown">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div class="user-info d-none d-md-block">
+                                <div id="userName" style="font-weight:600;font-size:0.85rem;">User</div>
+                                <small id="userRole">Role</small>
+                            </div>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="showProfile()"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showChangePassword()"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1>Expenses</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Expenses</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus me-2"></i>Submit Expense</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>All Expenses</span>
+                        <span class="badge bg-primary" id="expenseCount">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Amount</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Bill</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expensesTableBody">
+                                    <tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="expenseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Submit Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="expenseForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Amount ($)</label>
+                            <input type="number" step="0.01" class="form-control" id="expenseAmount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="expenseCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Food">Food</option>
+                                <option value="Accommodation">Accommodation</option>
+                                <option value="Office Supplies">Office Supplies</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="expenseDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Rejection</label>
+                        <textarea class="form-control" id="rejectReason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmRejectBtn">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="billUploadModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Bill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="billUploadForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="billExpenseId">
+                        <div class="mb-3">
+                            <label class="form-label">Select Bill File (JPG, PNG, PDF)</label>
+                            <input type="file" class="form-control" id="billFile" accept=".jpg,.jpeg,.png,.pdf" required>
+                            <small class="text-muted">Max size: 5MB</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">My Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="profileBody">
+                    <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="changePasswordForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" required minlength="6">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        let rejectTargetId = null;
+        const user = api.getUser();
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!api.isAuthenticated()) { window.location.href = '../index.html'; return; }
+            loadExpenses();
+        });
+
+        async function loadExpenses() {
+            try {
+                const result = await api.get('/expenses');
+                const tbody = document.getElementById('expensesTableBody');
+                const expenses = result.data || [];
+
+                document.getElementById('expenseCount').textContent = expenses.length;
+
+                if (expenses.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No expenses found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = expenses.map(e => {
+                    const isPending = e.approval_status === 'Pending';
+                    const canApprove = (user.role === 'Admin' || user.role === 'Manager') && isPending;
+
+                    return `
+                        <tr>
+                            <td>${e.employee_name || 'Unknown'}</td>
+                            <td><strong>$${parseFloat(e.amount).toFixed(2)}</strong></td>
+                            <td>${e.category}</td>
+                            <td>${e.description || '-'}</td>
+                            <td>${e.bill_path
+                                ? `<a href="${API_BASE}/uploads/${e.bill_path}" target="_blank" class="btn btn-sm btn-outline-info me-1" title="View Bill"><i class="fas fa-file"></i></a>`
+                                : (e.employee_id === user.user_id
+                                    ? `<button class="btn btn-sm btn-outline-secondary" onclick="openBillUpload(${e.expense_id})" title="Upload Bill"><i class="fas fa-upload"></i></button>`
+                                    : '-')}</td>
+                            <td>${formatDate(e.submitted_date)}</td>
+                            <td>${statusBadge(e.approval_status)}</td>
+                            <td>
+                                ${canApprove ? `
+                                    <button class="btn btn-sm btn-success me-1" onclick="approveExpense(${e.expense_id})" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="openRejectModal(${e.expense_id})" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : `
+                                    <span class="text-muted small">${isPending ? 'Awaiting approval' : e.approved_by_name ? `By: ${e.approved_by_name}` : '-'}</span>
+                                `}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                document.getElementById('expensesTableBody').innerHTML =
+                    '<tr><td colspan="8" class="text-center text-danger">Failed to load expenses</td></tr>';
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('expenseForm').reset();
+            new bootstrap.Modal(document.getElementById('expenseModal')).show();
+        }
+
+        document.getElementById('expenseForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                category: document.getElementById('expenseCategory').value,
+                description: document.getElementById('expenseDescription').value,
+            };
+
+            try {
+                const result = await api.post('/expenses', data);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('expenseModal');
+                    loadExpenses();
+                    loadNotifications();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Submission failed', 'danger');
+            }
+        });
+
+        async function approveExpense(expenseId) {
+            if (!confirm('Approve this expense?')) return;
+            try {
+                const result = await api.put(`/expenses/${expenseId}/approve`);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    loadExpenses();
+                    loadNotifications();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Approval failed', 'danger');
+            }
+        }
+
+        function openRejectModal(expenseId) {
+            rejectTargetId = expenseId;
+            document.getElementById('rejectReason').value = '';
+            new bootstrap.Modal(document.getElementById('rejectModal')).show();
+        }
+
+        document.getElementById('confirmRejectBtn').addEventListener('click', async function () {
+            const reason = document.getElementById('rejectReason').value;
+            if (!reason) { showAlert('Please provide a reason', 'warning'); return; }
+
+            try {
+                const result = await api.put(`/expenses/${rejectTargetId}/reject`, { reason });
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('rejectModal');
+                    loadExpenses();
+                    loadNotifications();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Rejection failed', 'danger');
+            }
+        });
+
+        function openBillUpload(expenseId) {
+            document.getElementById('billExpenseId').value = expenseId;
+            document.getElementById('billFile').value = '';
+            new bootstrap.Modal(document.getElementById('billUploadModal')).show();
+        }
+
+        document.getElementById('billUploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const expenseId = document.getElementById('billExpenseId').value;
+            const fileInput = document.getElementById('billFile');
+            if (!fileInput.files[0]) { showAlert('Please select a file', 'warning'); return; }
+
+            const formData = new FormData();
+            formData.append('expense_id', expenseId);
+            formData.append('bill', fileInput.files[0]);
+
+            try {
+                const result = await api.upload('/expenses/upload-bill', formData);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('billUploadModal');
+                    loadExpenses();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Upload failed', 'danger');
+            }
+        });
+
+        async function showProfile() {
+            try {
+                const result = await api.get('/profile');
+                if (result.success) {
+                    const u = result.data;
+                    document.getElementById('profileBody').innerHTML = `
+                        <div class="text-center mb-3">
+                            <div class="user-avatar mx-auto mb-2" style="width:64px;height:64px;font-size:1.5rem;">${u.full_name.charAt(0)}</div>
+                            <h5>${u.full_name}</h5>
+                            <span class="badge bg-primary">${u.role_name}</span>
+                        </div>
+                        <table class="table table-bordered">
+                            <tr><th>Email</th><td>${u.email}</td></tr>
+                            <tr><th>Phone</th><td>${u.phone || '-'}</td></tr>
+                            <tr><th>Department</th><td>${u.department || '-'}</td></tr>
+                            <tr><th>Status</th><td>${statusBadge(u.status)}</td></tr>
+                            <tr><th>Member Since</th><td>${formatDate(u.created_at)}</td></tr>
+                        </table>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('profileBody').innerHTML = '<p class="text-danger text-center">Failed to load profile</p>';
+            }
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                current_password: document.getElementById('currentPassword').value,
+                new_password: document.getElementById('newPassword').value,
+            };
+            try {
+                const result = await api.put('/change-password', data);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('changePasswordModal');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Password change failed', 'danger');
+            }
+        });
+
+        function showChangePassword() {
+            document.getElementById('changePasswordForm').reset();
+            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+        }
+    </script>
+</body>
+</html>

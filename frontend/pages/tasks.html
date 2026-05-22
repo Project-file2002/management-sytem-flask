@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks - Task & Expense Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-tasks mb-2" style="color: #fff; font-size: 1.5rem;"></i>
+                <h3>TaskFlow</h3>
+                <small>Management System</small>
+            </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Main</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="users.html" id="navUsers"><i class="fas fa-fw fa-users"></i> Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="projects.html"><i class="fas fa-fw fa-project-diagram"></i> Projects</a></li>
+                <li class="nav-item"><a class="nav-link active" href="tasks.html"><i class="fas fa-fw fa-tasks"></i> Tasks</a></li>
+                <li class="nav-item"><a class="nav-link" href="expenses.html"><i class="fas fa-fw fa-dollar-sign"></i> Expenses</a></li>
+                <li class="nav-item"><a class="nav-link" href="reports.html"><i class="fas fa-fw fa-chart-bar"></i> Reports</a></li>
+            </ul>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Account</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="notifications.html"><i class="fas fa-fw fa-bell"></i> Notifications</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="logout()"><i class="fas fa-fw fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <nav class="topbar">
+                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <div class="topbar-search">
+                    <i class="fas fa-search text-muted me-2"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="topbar-right">
+                    <div class="dropdown">
+                        <button class="notification-btn" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationList"></div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="user-profile" data-bs-toggle="dropdown">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div class="user-info d-none d-md-block">
+                                <div id="userName" style="font-weight:600;font-size:0.85rem;">User</div>
+                                <small id="userRole">Role</small>
+                            </div>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="showProfile()"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showChangePassword()"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1>Tasks</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Tasks</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <button class="btn btn-primary" id="addTaskBtn" onclick="openAddModal()"><i class="fas fa-plus me-2"></i>Add Task</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>All Tasks</span>
+                        <span class="badge bg-primary" id="taskCount">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Project</th>
+                                        <th>Assigned To</th>
+                                        <th>Priority</th>
+                                        <th>Deadline</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tasksTableBody">
+                                    <tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="taskModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskModalTitle">Add Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="taskForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="taskId">
+                        <div class="mb-3">
+                            <label class="form-label">Task Title</label>
+                            <input type="text" class="form-control" id="taskTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="taskDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Project</label>
+                            <select class="form-select" id="taskProjectId"></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Assign To</label>
+                            <select class="form-select" id="taskAssignedTo"></select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="taskPriority">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Deadline</label>
+                                <input type="date" class="form-control" id="taskDeadline">
+                            </div>
+                        </div>
+                        <div class="mb-3" id="statusField">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="taskStatus">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Blocked">Blocked</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">My Profile</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body" id="profileBody"><div class="text-center py-4"><div class="spinner-border text-primary"></div></div></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Change Password</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form id="changePasswordForm">
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Current Password</label><input type="password" class="form-control" id="currentPassword" required></div>
+                        <div class="mb-3"><label class="form-label">New Password</label><input type="password" class="form-control" id="newPassword" required minlength="6"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        let editingTaskId = null;
+        const user = api.getUser();
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!api.isAuthenticated()) { window.location.href = '../index.html'; return; }
+
+            if (user.role === 'Employee') {
+                document.getElementById('addTaskBtn').style.display = 'none';
+            }
+
+            loadProjects();
+            loadEmployees();
+            loadTasks();
+        });
+
+        async function loadProjects() {
+            try {
+                const result = await api.get('/projects');
+                if (result.success) {
+                    populateSelect('taskProjectId', result.data, 'project_id', 'project_name', 'Select Project');
+                }
+            } catch (error) {
+                console.error('Load projects error:', error);
+            }
+        }
+
+        async function loadEmployees() {
+            try {
+                const result = await api.get('/employees');
+                if (result.success) {
+                    populateSelect('taskAssignedTo', result.data, 'user_id', 'full_name', 'Unassigned');
+                }
+            } catch (error) {
+                console.error('Load employees error:', error);
+            }
+        }
+
+        async function loadTasks() {
+            try {
+                const result = await api.get('/tasks');
+                const tbody = document.getElementById('tasksTableBody');
+                const tasks = result.data || [];
+
+                document.getElementById('taskCount').textContent = tasks.length;
+
+                if (tasks.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No tasks found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = tasks.map(t => `
+                    <tr>
+                        <td><strong>${t.task_title}</strong></td>
+                        <td>${t.project_name || '-'}</td>
+                        <td>${t.assigned_to_name || 'Unassigned'}</td>
+                        <td>${priorityBadge(t.priority)}</td>
+                        <td>${formatDate(t.deadline)}</td>
+                        <td>${statusBadge(t.status)}</td>
+                        <td>
+                            ${user.role !== 'Employee' ? `
+                                <button class="btn btn-sm btn-info me-1" onclick="editTask(${t.task_id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            ` : `
+                                <button class="btn btn-sm btn-info me-1" onclick="editTaskStatus(${t.task_id}, '${t.status}')" title="Update Status">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            `}
+                            ${user.role === 'Admin' ? `
+                                <button class="btn btn-sm btn-danger" onclick="deleteTask(${t.task_id})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('tasksTableBody').innerHTML =
+                    '<tr><td colspan="7" class="text-center text-danger">Failed to load tasks</td></tr>';
+            }
+        }
+
+        function openAddModal() {
+            editingTaskId = null;
+            document.getElementById('taskModalTitle').textContent = 'Add New Task';
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskId').value = '';
+            document.getElementById('taskStatus').value = 'Pending';
+            document.getElementById('statusField').style.display = 'none';
+            new bootstrap.Modal(document.getElementById('taskModal')).show();
+        }
+
+        async function editTask(taskId) {
+            try {
+                const result = await api.get(`/tasks/${taskId}`);
+                if (result.success) {
+                    const t = result.data;
+                    editingTaskId = taskId;
+                    document.getElementById('taskModalTitle').textContent = 'Edit Task';
+                    document.getElementById('taskId').value = t.task_id;
+                    document.getElementById('taskTitle').value = t.task_title;
+                    document.getElementById('taskDescription').value = t.task_description || '';
+                    document.getElementById('taskProjectId').value = t.project_id || '';
+                    document.getElementById('taskAssignedTo').value = t.assigned_to || '';
+                    document.getElementById('taskPriority').value = t.priority;
+                    document.getElementById('taskDeadline').value = t.deadline ? t.deadline.split('T')[0] : '';
+                    document.getElementById('taskStatus').value = t.status;
+                    document.getElementById('statusField').style.display = 'block';
+                    new bootstrap.Modal(document.getElementById('taskModal')).show();
+                }
+            } catch (error) {
+                showAlert('Failed to load task details', 'danger');
+            }
+        }
+
+        async function editTaskStatus(taskId, currentStatus) {
+            const statuses = ['Pending', 'In Progress', 'Completed', 'Blocked'];
+            const nextStatus = statuses[(statuses.indexOf(currentStatus) + 1) % statuses.length];
+            if (!confirm(`Change task status to "${nextStatus}"?`)) return;
+
+            try {
+                const result = await api.put(`/tasks/${taskId}/status`, { status: nextStatus });
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    loadTasks();
+                    loadNotifications();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Status update failed', 'danger');
+            }
+        }
+
+        document.getElementById('taskForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                task_title: document.getElementById('taskTitle').value,
+                task_description: document.getElementById('taskDescription').value,
+                project_id: parseInt(document.getElementById('taskProjectId').value) || null,
+                assigned_to: parseInt(document.getElementById('taskAssignedTo').value) || null,
+                priority: document.getElementById('taskPriority').value,
+                deadline: document.getElementById('taskDeadline').value || null,
+                status: document.getElementById('taskStatus').value,
+            };
+
+            try {
+                let result;
+                if (editingTaskId) {
+                    result = await api.put(`/tasks/${editingTaskId}`, data);
+                } else {
+                    result = await api.post('/tasks', data);
+                }
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('taskModal');
+                    loadTasks();
+                    loadNotifications();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Operation failed', 'danger');
+            }
+        });
+
+        async function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            try {
+                const result = await api.delete(`/tasks/${taskId}`);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    loadTasks();
+                    loadNotifications();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Delete failed', 'danger');
+            }
+        }
+
+        async function showProfile() {
+            try {
+                const result = await api.get('/profile');
+                if (result.success) {
+                    const u = result.data;
+                    document.getElementById('profileBody').innerHTML = `
+                        <div class="text-center mb-3">
+                            <div class="user-avatar mx-auto mb-2" style="width:64px;height:64px;font-size:1.5rem;">${u.full_name.charAt(0)}</div>
+                            <h5>${u.full_name}</h5>
+                            <span class="badge bg-primary">${u.role_name}</span>
+                        </div>
+                        <table class="table table-bordered">
+                            <tr><th>Email</th><td>${u.email}</td></tr>
+                            <tr><th>Phone</th><td>${u.phone || '-'}</td></tr>
+                            <tr><th>Department</th><td>${u.department || '-'}</td></tr>
+                            <tr><th>Status</th><td>${statusBadge(u.status)}</td></tr>
+                            <tr><th>Member Since</th><td>${formatDate(u.created_at)}</td></tr>
+                        </table>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('profileBody').innerHTML = '<p class="text-danger text-center">Failed to load profile</p>';
+            }
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        function showChangePassword() {
+            document.getElementById('changePasswordForm').reset();
+            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+        }
+
+        document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                current_password: document.getElementById('currentPassword').value,
+                new_password: document.getElementById('newPassword').value,
+            };
+            try {
+                const result = await api.put('/change-password', data);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('changePasswordModal');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Password change failed', 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

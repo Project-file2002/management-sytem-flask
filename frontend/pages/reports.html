@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Task & Expense Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-tasks mb-2" style="color: #fff; font-size: 1.5rem;"></i>
+                <h3>TaskFlow</h3>
+                <small>Management System</small>
+            </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Main</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="users.html" id="navUsers"><i class="fas fa-fw fa-users"></i> Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="projects.html"><i class="fas fa-fw fa-project-diagram"></i> Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="tasks.html"><i class="fas fa-fw fa-tasks"></i> Tasks</a></li>
+                <li class="nav-item"><a class="nav-link" href="expenses.html"><i class="fas fa-fw fa-dollar-sign"></i> Expenses</a></li>
+                <li class="nav-item"><a class="nav-link active" href="reports.html"><i class="fas fa-fw fa-chart-bar"></i> Reports</a></li>
+            </ul>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Account</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="notifications.html"><i class="fas fa-fw fa-bell"></i> Notifications</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="logout()"><i class="fas fa-fw fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <nav class="topbar">
+                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <div class="topbar-search">
+                    <i class="fas fa-search text-muted me-2"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="topbar-right">
+                    <div class="dropdown">
+                        <button class="notification-btn" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationList"></div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="user-profile" data-bs-toggle="dropdown">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div class="user-info d-none d-md-block">
+                                <div id="userName" style="font-weight:600;font-size:0.85rem;">User</div>
+                                <small id="userRole">Role</small>
+                            </div>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="showProfile()"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showChangePassword()"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1>Reports</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Reports</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success" onclick="exportExcel()">
+                            <i class="fas fa-file-excel me-1"></i> Export Excel
+                        </button>
+                        <button class="btn btn-danger" onclick="exportPDF()">
+                            <i class="fas fa-file-pdf me-1"></i> Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>Task Status Distribution</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="taskChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>Expense Status Overview</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="expenseChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>Project Status Overview</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="projectChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>Expense by Category</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>Summary Report</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportSummaryBody">
+                                    <tr><td colspan="2" class="text-center text-muted">Loading report data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">My Profile</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body" id="profileBody"><div class="text-center py-4"><div class="spinner-border text-primary"></div></div></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Change Password</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form id="changePasswordForm">
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Current Password</label><input type="password" class="form-control" id="currentPassword" required></div>
+                        <div class="mb-3"><label class="form-label">New Password</label><input type="password" class="form-control" id="newPassword" required minlength="6"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!api.isAuthenticated()) { window.location.href = '../index.html'; return; }
+
+            try {
+                const statsResult = await api.get('/dashboard-stats');
+                const tasksResult = await api.get('/tasks');
+                const expensesResult = await api.get('/expenses');
+                const projectsResult = await api.get('/projects');
+
+                const stats = statsResult.data || {};
+                const tasks = tasksResult.data || [];
+                const expenses = expensesResult.data || [];
+                const projects = projectsResult.data || [];
+
+                const taskStatusCounts = { 'Pending': 0, 'In Progress': 0, 'Completed': 0, 'Blocked': 0 };
+                tasks.forEach(t => { if (taskStatusCounts[t.status] !== undefined) taskStatusCounts[t.status]++; });
+
+                const expenseStatusCounts = { 'Pending': 0, 'Approved': 0, 'Rejected': 0 };
+                expenses.forEach(e => { if (expenseStatusCounts[e.approval_status] !== undefined) expenseStatusCounts[e.approval_status]++; });
+
+                const projectStatusCounts = { 'Planned': 0, 'Active': 0, 'Completed': 0, 'On Hold': 0 };
+                projects.forEach(p => { if (projectStatusCounts[p.status] !== undefined) projectStatusCounts[p.status]++; });
+
+                const categoryTotals = {};
+                expenses.forEach(e => {
+                    categoryTotals[e.category] = (categoryTotals[e.category] || 0) + parseFloat(e.amount);
+                });
+
+                new Chart(document.getElementById('taskChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(taskStatusCounts),
+                        datasets: [{
+                            data: Object.values(taskStatusCounts),
+                            backgroundColor: ['#f6c23e', '#36b9cc', '#1cc88a', '#e74a3b'],
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                });
+
+                new Chart(document.getElementById('expenseChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(expenseStatusCounts),
+                        datasets: [{
+                            data: Object.values(expenseStatusCounts),
+                            backgroundColor: ['#f6c23e', '#1cc88a', '#e74a3b'],
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                });
+
+                new Chart(document.getElementById('projectChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(projectStatusCounts),
+                        datasets: [{
+                            label: 'Projects',
+                            data: Object.values(projectStatusCounts),
+                            backgroundColor: ['#cce5ff', '#d4edda', '#1cc88a', '#fff3cd'],
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                });
+
+                new Chart(document.getElementById('categoryChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(categoryTotals),
+                        datasets: [{
+                            data: Object.values(categoryTotals),
+                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: (ctx) => `$${ctx.parsed.toFixed(2)}` } } } }
+                });
+
+                const summaryRows = [
+                    { label: 'Total Tasks', value: tasks.length },
+                    { label: 'Completed Tasks', value: taskStatusCounts['Completed'] },
+                    { label: 'Pending Tasks', value: taskStatusCounts['Pending'] },
+                    { label: 'In Progress Tasks', value: taskStatusCounts['In Progress'] },
+                    { label: 'Total Expenses', value: expenses.length },
+                    { label: 'Approved Expenses', value: expenseStatusCounts['Approved'] },
+                    { label: 'Pending Expenses', value: expenseStatusCounts['Pending'] },
+                    { label: 'Rejected Expenses', value: expenseStatusCounts['Rejected'] },
+                    { label: 'Total Projects', value: projects.length },
+                    { label: 'Active Projects', value: projectStatusCounts['Active'] },
+                    { label: 'Completed Projects', value: projectStatusCounts['Completed'] },
+                ];
+
+                const tbody = document.getElementById('reportSummaryBody');
+                tbody.innerHTML = summaryRows.map(r => `
+                    <tr>
+                        <td><strong>${r.label}</strong></td>
+                        <td><span class="badge bg-primary">${r.value}</span></td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Reports load error:', error);
+                showAlert('Failed to load report data', 'danger');
+            }
+        });
+
+        function downloadFile(url, filename) {
+            const token = api.getToken();
+            fetch(url, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => {
+                    if (!res.ok) throw new Error('Download failed');
+                    return res.blob();
+                })
+                .then(blob => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    showAlert('Report downloaded successfully', 'success');
+                })
+                .catch(err => showAlert(err.message, 'danger'));
+        }
+
+        function exportExcel() {
+            downloadFile('http://localhost:5000/api/reports/export/excel', 'TaskFlow_Report.xlsx');
+        }
+
+        function exportPDF() {
+            downloadFile('http://localhost:5000/api/reports/export/pdf', 'TaskFlow_Report.pdf');
+        }
+
+        async function showProfile() {
+            try {
+                const result = await api.get('/profile');
+                if (result.success) {
+                    const u = result.data;
+                    document.getElementById('profileBody').innerHTML = `
+                        <div class="text-center mb-3">
+                            <div class="user-avatar mx-auto mb-2" style="width:64px;height:64px;font-size:1.5rem;">${u.full_name.charAt(0)}</div>
+                            <h5>${u.full_name}</h5>
+                            <span class="badge bg-primary">${u.role_name}</span>
+                        </div>
+                        <table class="table table-bordered">
+                            <tr><th>Email</th><td>${u.email}</td></tr>
+                            <tr><th>Phone</th><td>${u.phone || '-'}</td></tr>
+                            <tr><th>Department</th><td>${u.department || '-'}</td></tr>
+                            <tr><th>Status</th><td>${statusBadge(u.status)}</td></tr>
+                            <tr><th>Member Since</th><td>${formatDate(u.created_at)}</td></tr>
+                        </table>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('profileBody').innerHTML = '<p class="text-danger text-center">Failed to load profile</p>';
+            }
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        function showChangePassword() {
+            document.getElementById('changePasswordForm').reset();
+            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+        }
+
+        document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                current_password: document.getElementById('currentPassword').value,
+                new_password: document.getElementById('newPassword').value,
+            };
+            try {
+                const result = await api.put('/change-password', data);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('changePasswordModal');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Password change failed', 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

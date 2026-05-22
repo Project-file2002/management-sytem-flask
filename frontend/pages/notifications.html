@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Task & Expense Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-tasks mb-2" style="color: #fff; font-size: 1.5rem;"></i>
+                <h3>TaskFlow</h3>
+                <small>Management System</small>
+            </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Main</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="users.html" id="navUsers"><i class="fas fa-fw fa-users"></i> Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="projects.html"><i class="fas fa-fw fa-project-diagram"></i> Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="tasks.html"><i class="fas fa-fw fa-tasks"></i> Tasks</a></li>
+                <li class="nav-item"><a class="nav-link" href="expenses.html"><i class="fas fa-fw fa-dollar-sign"></i> Expenses</a></li>
+                <li class="nav-item"><a class="nav-link" href="reports.html"><i class="fas fa-fw fa-chart-bar"></i> Reports</a></li>
+            </ul>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Account</div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link active" href="notifications.html"><i class="fas fa-fw fa-bell"></i> Notifications</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="logout()"><i class="fas fa-fw fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <nav class="topbar">
+                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <div class="topbar-search">
+                    <i class="fas fa-search text-muted me-2"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="topbar-right">
+                    <div class="dropdown">
+                        <button class="notification-btn" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationList"></div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="user-profile" data-bs-toggle="dropdown">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div class="user-info d-none d-md-block">
+                                <div id="userName" style="font-weight:600;font-size:0.85rem;">User</div>
+                                <small id="userRole">Role</small>
+                            </div>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="showProfile()"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showChangePassword()"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1>Notifications</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Notifications</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <button class="btn btn-outline-primary" onclick="markAllRead()">
+                        <i class="fas fa-check-double me-2"></i>Mark All as Read
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>All Notifications</span>
+                        <span class="badge bg-primary" id="notifCount">0</span>
+                    </div>
+                    <div class="card-body" id="notificationsContainer">
+                        <div class="text-center text-muted py-4">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">My Profile</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body" id="profileBody"><div class="text-center py-4"><div class="spinner-border text-primary"></div></div></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Change Password</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form id="changePasswordForm">
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Current Password</label><input type="password" class="form-control" id="currentPassword" required></div>
+                        <div class="mb-3"><label class="form-label">New Password</label><input type="password" class="form-control" id="newPassword" required minlength="6"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!api.isAuthenticated()) { window.location.href = '../index.html'; return; }
+            loadNotificationsPage();
+        });
+
+        async function loadNotificationsPage() {
+            try {
+                const result = await api.get('/notifications');
+                const notifications = result.data || [];
+                const container = document.getElementById('notificationsContainer');
+
+                document.getElementById('notifCount').textContent = notifications.length;
+
+                if (notifications.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-bell"></i>
+                            <p class="mt-2">No notifications yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const icons = {
+                    'task_assigned': 'fa-tasks text-info',
+                    'task_updated': 'fa-sync-alt text-warning',
+                    'expense_approved': 'fa-check-circle text-success',
+                    'expense_rejected': 'fa-times-circle text-danger',
+                };
+
+                container.innerHTML = notifications.map(n => `
+                    <div class="d-flex align-items-start p-3 ${n.is_read ? '' : 'bg-light'} border-bottom notification-item"
+                         onclick="markOneRead(${n.notification_id})" style="cursor:pointer;">
+                        <div class="me-3">
+                            <i class="fas ${icons[n.type] || 'fa-bell text-primary'} fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>${n.title}</strong>
+                                <small class="text-muted">${formatDateTime(n.created_at)}</small>
+                            </div>
+                            <p class="mb-0 text-muted small">${n.message}</p>
+                        </div>
+                        ${n.is_read ? '' : '<span class="badge bg-primary ms-2" style="width:8px;height:8px;border-radius:50%;padding:0;"></span>'}
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('notificationsContainer').innerHTML =
+                    '<div class="text-center text-danger py-4">Failed to load notifications</div>';
+            }
+        }
+
+        async function markOneRead(id) {
+            try {
+                await api.put(`/notifications/${id}/read`);
+                loadNotificationsPage();
+                loadNotifications();
+            } catch (error) {
+                console.error('Mark read error:', error);
+            }
+        }
+
+        async function markAllRead() {
+            try {
+                const result = await api.put('/notifications/read-all');
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    loadNotificationsPage();
+                    loadNotifications();
+                }
+            } catch (error) {
+                showAlert('Failed to mark all as read', 'danger');
+            }
+        }
+
+        async function showProfile() {
+            try {
+                const result = await api.get('/profile');
+                if (result.success) {
+                    const u = result.data;
+                    document.getElementById('profileBody').innerHTML = `
+                        <div class="text-center mb-3">
+                            <div class="user-avatar mx-auto mb-2" style="width:64px;height:64px;font-size:1.5rem;">${u.full_name.charAt(0)}</div>
+                            <h5>${u.full_name}</h5>
+                            <span class="badge bg-primary">${u.role_name}</span>
+                        </div>
+                        <table class="table table-bordered">
+                            <tr><th>Email</th><td>${u.email}</td></tr>
+                            <tr><th>Phone</th><td>${u.phone || '-'}</td></tr>
+                            <tr><th>Department</th><td>${u.department || '-'}</td></tr>
+                            <tr><th>Status</th><td>${statusBadge(u.status)}</td></tr>
+                            <tr><th>Member Since</th><td>${formatDate(u.created_at)}</td></tr>
+                        </table>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('profileBody').innerHTML = '<p class="text-danger text-center">Failed to load profile</p>';
+            }
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        function showChangePassword() {
+            document.getElementById('changePasswordForm').reset();
+            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+        }
+
+        document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                current_password: document.getElementById('currentPassword').value,
+                new_password: document.getElementById('newPassword').value,
+            };
+            try {
+                const result = await api.put('/change-password', data);
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeModal('changePasswordModal');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert(error.message || 'Password change failed', 'danger');
+            }
+        });
+    </script>
+</body>
+</html>
